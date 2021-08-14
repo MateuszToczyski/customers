@@ -1,34 +1,47 @@
 package com.kodilla.customer.controller;
 
+import com.kodilla.customer.controller.response.GetCustomerAccountsResponse;
 import com.kodilla.customer.controller.response.GetCustomerResponse;
+import com.kodilla.customer.dto.AccountDto;
 import com.kodilla.customer.dto.CustomerDto;
 import com.kodilla.customer.service.CustomerService;
+import com.kodilla.customer.service.ProductService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-@Slf4j
-@RefreshScope
+import java.util.List;
+
 @RestController
-@RequestMapping("/customer")
+@RequestMapping(value = "/v1/customer", produces = { MediaType.APPLICATION_JSON_VALUE })
 @RequiredArgsConstructor
 public class CustomerController {
-
     private final CustomerService customerService;
+    private final ProductService productService;
 
-    @GetMapping("{id}")
-    public ResponseEntity<GetCustomerResponse> getCustomerById(@PathVariable Long id) {
-        CustomerDto customerDto = customerService.findById(id);
-        if (customerDto == null) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(new GetCustomerResponse(customerDto), HttpStatus.OK);
-        }
+    @GetMapping("/{customerId}")
+    public GetCustomerResponse getCustomer(@PathVariable Long customerId) {
+        return customerService.findById(customerId)
+                .map(GetCustomerResponse::new)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("/{customerId}/accounts")
+    public GetCustomerAccountsResponse getCustomerAccounts(@PathVariable Long customerId) {
+        CustomerDto customerDto = customerService.findById(customerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
+
+        List<AccountDto> customerAccounts = productService.findCustomerAccounts(customerId);
+
+        return GetCustomerAccountsResponse.builder()
+                .customerId(customerDto.getId())
+                .fullName(customerDto.getFirstName() + " " + customerDto.getLastName())
+                .accounts(customerAccounts)
+                .build();
     }
 }

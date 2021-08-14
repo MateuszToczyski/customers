@@ -16,8 +16,8 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
 
-    public CustomerDto findById(Long id) {
-        Optional<Customer> customerOptional = customerRepository.findById(id);
-        return customerOptional.map(customerMapper::toCustomerDto).orElse(null);
+    public Optional<CustomerDto> findById(Long id) {
+        Optional<Customer> customer = customerRepository.findById(id);
+        return customer.map(customerMapper::toCustomerDto);
     }
 }
