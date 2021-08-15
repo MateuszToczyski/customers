@@ -38,13 +38,13 @@ public class CustomerController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
 
         List<AccountDto> accounts = productService.findCustomerAccounts(customerId);
-        //List<CardDto> cards = productService.findCustomerCards(customerId);
+        List<CardDto> cards = productService.findCustomerCards(customerId);
 
         return GetCustomerProductsResponse.builder()
                 .customerId(customerDto.getId())
                 .fullName(customerDto.getFirstName() + " " + customerDto.getLastName())
                 .accounts(accounts)
-                //.cards(cards)
+                .cards(cards)
                 .build();
     }
 }
