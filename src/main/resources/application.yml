@@ -5,3 +5,6 @@ spring:
     active: production
 eureka:
   client: ${eureka-client}
+feign:
+  hystrix:
+    enabled: true

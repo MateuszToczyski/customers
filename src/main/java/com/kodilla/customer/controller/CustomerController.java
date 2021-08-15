@@ -1,8 +1,9 @@
 package com.kodilla.customer.controller;
 
-import com.kodilla.customer.controller.response.GetCustomerAccountsResponse;
+import com.kodilla.customer.controller.response.GetCustomerProductsResponse;
 import com.kodilla.customer.controller.response.GetCustomerResponse;
 import com.kodilla.customer.dto.AccountDto;
+import com.kodilla.customer.dto.CardDto;
 import com.kodilla.customer.dto.CustomerDto;
 import com.kodilla.customer.service.CustomerService;
 import com.kodilla.customer.service.ProductService;
@@ -31,17 +32,19 @@ public class CustomerController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
-    @GetMapping("/{customerId}/accounts")
-    public GetCustomerAccountsResponse getCustomerAccounts(@PathVariable Long customerId) {
+    @GetMapping("/{customerId}/products")
+    public GetCustomerProductsResponse getCustomerProducts(@PathVariable Long customerId) {
         CustomerDto customerDto = customerService.findById(customerId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
 
-        List<AccountDto> customerAccounts = productService.findCustomerAccounts(customerId);
+        List<AccountDto> accounts = productService.findCustomerAccounts(customerId);
+        List<CardDto> cards = productService.findCustomerCards(customerId);
 
-        return GetCustomerAccountsResponse.builder()
+        return GetCustomerProductsResponse.builder()
                 .customerId(customerDto.getId())
                 .fullName(customerDto.getFirstName() + " " + customerDto.getLastName())
-                .accounts(customerAccounts)
+                .accounts(accounts)
+                .cards(cards)
                 .build();
     }
 }
